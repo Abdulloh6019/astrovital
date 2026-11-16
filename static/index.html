@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AstroVital v0.4.0 — ekipaj sog‘lig‘i paneli (DEMO)</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="/static/style.css" />
+<script>try{if(localStorage.getItem("astromed.theme")==="dark")document.documentElement.dataset.theme="dark";if(localStorage.getItem("astromed.side")==="mini")document.documentElement.classList.add("side-mini")}catch(e){}</script>
+<script src="/static/app.js" defer></script>
+<script src="/static/ai_panel.js" defer></script>
+</head>
+<body class="ai-open">
+<div class="shell">
+<aside class="side" id="side">
+  <div class="side-head">
+    <button id="sideToggle" class="icon-btn" type="button" aria-label="Menyuni yig‘ish"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+    <div class="brand"><span class="logo" aria-hidden="true"></span><span class="brand-text">astrovital</span></div>
+  </div>
+  <nav id="mainNav" class="views" aria-label="Asosiy bo‘limlar">
+    <a href="#overview" data-primary="overview"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10"/></svg><span>Hozir</span></a>
+    <a href="#crew-section" data-primary="crew"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 11a4 4 0 1 0-8 0M12 7a4 4 0 1 1 0 0M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg><span>Ekipaj</span></a>
+    <a href="#shared" data-primary="environment"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 16h16M7 16V9l5-4 5 4v7M10 20h4M12 16v4"/></svg><span>Muhit</span></a>
+    <a href="#emergency" data-primary="emergency"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l9 16H3zM12 10v4M12 17h.01"/></svg><span>Yordam</span></a>
+    <a href="#alerts" data-primary="history"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h10"/></svg><span>Jurnal</span> <b id="navAlertCount" class="count">0</b></a>
+  </nav>
+  <div class="side-foot"><span class="dot"></span><span>AstroAI: <b id="aiSidebarStatus">…</b></span></div>
+</aside>
+<div class="content">
+<header class="top">
+  <button id="mobileMenuButton" class="icon-btn menu-btn" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Menyuni ochish"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+  <div id="alarm" class="alarm" data-caution="off" data-warning="off" data-blink="off" role="status" aria-live="polite" title="Faol ogohlantirishlar">
+    <span class="lamp caution">E’tibor</span><span class="lamp warning">Xavf</span>
+  </div>
+  <nav id="crewNav" class="crew" aria-label="Ekipaj a’zosini tanlash"></nav>
+  <div class="top-right">
+    <span id="globalRisk" class="tag risk" data-level="0">Missiya: …</span>
+    <button id="toggleLink" class="link-state" type="button" data-state="ok"><span id="connectionTag">Yer aloqasi</span></button>
+    <div class="clock"><span id="clock">--:--:--</span><small id="lastSeen">Namuna: —</small></div>
+    <button id="themeToggle" class="icon-btn" type="button" aria-label="Qorong‘i rejim"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg></button>
+  </div>
+</header>
+<nav id="subNav" class="subviews" aria-label="Ichki bo‘limlar" hidden></nav>
+
+<main class="view" id="main">
+  <div class="mission-head">
+    <h1 id="pageTitle" class="view-title" tabindex="-1">Missiya holati</h1>
+    <p id="pageDescription" class="lede">Asosiy holat va sinov boshqaruvi</p>
+  </div>
+
+  <!-- HOZIR: mission board -->
+  <section class="board" id="overview" data-view="overview">
+    <div class="col-left">
+      <div class="bezel index" id="overallBox" data-level="0">
+        <h2>Missiya holati</h2>
+        <div class="index-top"><div class="index-num" id="overallNum">0</div>
+          <div><div class="index-state" id="overall">—</div><div class="index-who" id="statusSub">Faqat sintetik kuzatuv</div></div></div>
+        <div class="tape" id="tape"></div>
+        <p class="source">Raqam — hozirgi faol ogohlantirishlar soni. Tashxis emas.</p>
+      </div>
+      <div class="bezel">
+        <h2>Ko‘rsatkichlar</h2>
+        <div class="screen kv">
+          <div><span>Ekipaj</span><b id="crewCount">0</b></div>
+          <div><span>Umumiy sabablar</span><b id="sharedCount">0</b></div>
+          <div><span>Yer aloqasi</span><b id="earthLinkText">—</b></div>
+          <div><span>Navbatdagi xabarlar</span><b id="outboxCount">0</b></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-mid">
+      <div class="bezel todo" id="todo" data-level="0">
+        <h2>Hozir nima qilish kerak</h2>
+        <ol class="todo-list" id="todoList"><li class="todo-empty">Yuklanmoqda…</li></ol>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="bezel rad">
+        <h2>Kabina CO₂</h2>
+        <div class="screen" id="cabinCo2"></div>
+      </div>
+      <div class="bezel rad">
+        <h2>Radiatsiya</h2>
+        <div class="screen" id="cabinRad"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EKIPAJ -->
+  <section class="crew-setup" id="crew-section" data-view="crew-section" hidden>
+    <div class="bezel">
+      <h2>Ekipaj a’zolari</h2>
+      <ul class="crew-cards" id="crewGrid"></ul>
+    </div>
+    <div class="crew-side">
+      <form class="bezel crew-form" id="crewAddForm">
+        <h2>Yangi a’zo qo‘shish</h2>
+        <label class="field"><span>Ism</span><input id="newCrewName" maxlength="40" required placeholder="Masalan: Aziza" /></label>
+        <label class="field"><span>Modul</span><select id="newCrewZone"><option value="HAB">HAB · Yashash moduli</option><option value="LAB">LAB · Laboratoriya moduli</option></select></label>
+        <button class="btn primary wide" type="submit">+ Qo‘shish</button>
+      </form>
+      <div class="bezel">
+        <h2>Tanlangan a’zo</h2>
+        <p class="sub">Yuqoridagi ekipaj tugmalaridan tanlang. O‘chirish faqat DEMO ro‘yxatdan chiqaradi.</p>
+        <button id="removeCrew" class="btn danger wide" type="button">Tanlanganni ro‘yxatdan chiqarish</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="board two" id="individual" data-view="individual" hidden>
+    <div class="col-mid">
+      <div class="bezel">
+        <div class="row between"><h2 id="individualTitle">Tibbiy ko‘rsatkichlar</h2><span class="sub" id="individualZone"></span></div>
+        <div class="screen strips" id="vitalGrid"></div>
+      </div>
+      <div class="bezel">
+        <h2>Trendlar (oxirgi 60 namuna)</h2>
+        <div class="screen trends">
+          <div><span class="sub">Puls, bpm</span><canvas id="hrChart" class="chart tall"></canvas></div>
+          <div><span class="sub">SpO₂, %</span><canvas id="spo2Chart" class="chart tall"></canvas></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-right">
+      <div class="bezel">
+        <h2>Alomatlar (qo‘lda)</h2>
+        <div id="symptomList"></div>
+        <p class="source">Tanlangan alomat darhol serverga yuboriladi.</p>
+      </div>
+      <div class="bezel">
+        <div class="row between"><h2>Qo‘lda kiritish</h2><span id="manualState" class="mini-pill unknown">Sensor</span></div>
+        <form id="manualForm" autocomplete="off">
+          <div id="manualFields" class="manual-grid"></div>
+          <div class="row manual-actions"><button class="btn primary" type="submit">Saqlash</button><button id="manualClear" class="btn" type="button">Avtomatikka qaytarish</button></div>
+        </form>
+        <p class="source">Faqat to‘ldirilgan maydonlar saqlanadi. Qiymat bekor qilinguncha sensor o‘rniga ishlatiladi.</p>
+      </div>
+      <div class="bezel dose" id="doseBox">
+        <h2>Shaxsiy radiatsiya dozasi</h2>
+        <div id="doseCard" data-level="0"></div>
+      </div>
+      <div class="bezel">
+        <h2>Shu a’zo ogohlantirishlari</h2>
+        <ol class="todo-list" id="personAlerts"></ol>
+        <button id="sendToAi" class="btn wide" type="button">✦ AstroAI ga yuborish</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MUHIT -->
+  <section class="stack" id="shared" data-view="shared" hidden>
+    <div class="feed-grid" id="findingList"></div>
+  </section>
+  <section class="stack" id="zones" data-view="zones" hidden>
+    <div class="mission-grid" id="zoneGrid"></div>
+    <div class="bezel"><h2>Hayot ta’minoti</h2><div class="screen syslist" id="systemStrip"></div></div>
+  </section>
+
+  <!-- YORDAM -->
+  <section class="stack" id="emergency" data-view="emergency" hidden aria-labelledby="emergencyHeading">
+    <div class="row between"><h2 id="emergencyHeading">Favqulodda yordam markazi</h2><span id="caseStats" class="sub">Hodisalar yuklanmoqda...</span></div>
+    <p class="banner" data-tone="delayed">Faqat DEMO tekshiruv bosqichlari. Real davolash protokollari kiritilmagan.</p>
+    <div class="emergency-grid">
+      <div class="bezel crew-form">
+        <h2>Yangi hodisa ochish</h2>
+        <form id="incidentForm" class="incident-form">
+          <label class="field"><span>Tekshiruv protokoli</span><select id="incidentProtocol" required></select></label>
+          <label class="field"><span>Bog‘liq signal</span><input id="incidentOrigin" readonly value="MANUAL_REPORT" aria-describedby="originHelp" /></label>
+          <p class="sub" id="originHelp">Signalni avtomatik kiritish uchun ogohlantirishdagi “Hodisa yaratish”ni bosing.</p>
+          <fieldset><legend>Ta’sirlangan kosmonavtlar</legend><div id="incidentCrewChoices" class="chips"></div></fieldset>
+          <fieldset><legend>Ta’sirlangan modullar</legend><div id="incidentZoneChoices" class="chips"></div></fieldset>
+          <label class="field"><span>Qaydni kiritayotgan ekipaj a’zosi</span><select id="incidentActor" required></select></label>
+          <label class="field"><span>Vaziyat izohi (ixtiyoriy)</span><textarea id="incidentNote" rows="2" maxlength="1000" placeholder="Kuzatilgan alomat yoki signal haqida qayd..."></textarea></label>
+          <button class="btn primary wide" type="submit">+ Hodisa ochish (demo)</button>
+        </form>
+      </div>
+      <div class="bezel feed">
+        <div class="row between"><h2>Yordam hodisalari</h2><button id="reloadIncidents" type="button" class="btn">↻ Yangilash</button></div>
+        <div class="screen case-list" id="incidentList" aria-live="polite"><div class="empty">Hodisalar yuklanmoqda...</div></div>
+      </div>
+    </div>
+    <div class="bezel" id="caseDetail" aria-live="polite"><div class="empty">Hodisani tanlang yoki yangi hodisa oching.</div></div>
+    <div class="nasa-grid">
+      <div class="bezel feed"><h2>Offline protokollar katalogi</h2><div class="screen" id="protocolCatalog"></div></div>
+      <div class="bezel feed"><h2>Bortdagi resurslar</h2><div class="screen" id="resourceList"></div></div>
+    </div>
+  </section>
+
+  <!-- JURNAL -->
+  <section class="stack" id="alerts" data-view="alerts" hidden>
+    <div class="row between"><h2>Faol ogohlantirishlar</h2><span id="alertsCount" class="sub">0 ta</span></div>
+    <div class="feed-grid" id="alertList"></div>
+  </section>
+  <section class="stack log" id="events" data-view="events" hidden>
+    <div class="bezel"><h2>Hodisalar tarixi (SQLite)</h2><ul class="screen" id="eventList"></ul></div>
+  </section>
+</main>
+
+<footer class="drill">
+  <span class="drill-label">Sinov ssenariysi</span>
+  <div class="drill-buttons" id="scenario" role="group" aria-label="Ssenariy tanlash"></div>
+  <button id="forceStep" class="btn" type="button">⟳ Bir qadam</button>
+</footer>
+</div>
+</div>
+
+<aside id="aiPanel" class="ai-panel" aria-labelledby="aiPanelTitle">
+  <div class="ai-head">
+    <div><div class="eyebrow">OFFLINE · DEMO</div><h2 id="aiPanelTitle">AstroAI</h2></div>
+    <button id="aiCollapse" class="close" type="button" aria-controls="aiPanel" aria-label="AstroAI panelni yig‘ish">⟩</button>
+  </div>
+  <div class="ai-status-row"><span id="aiStatusPill" class="mini-pill unknown" role="status" aria-live="polite">Tekshirilmoqda…</span><button id="aiLoadButton" class="link-button" type="button" hidden>Modelni oldindan yuklash</button></div>
+  <label class="ai-auto"><input type="checkbox" id="aiAutoToggle" checked /> <span>Xavf paytida avtomatik tahlil</span> <span id="aiAutoTag" class="mini-pill unknown">KUTMOQDA</span></label>
+  <details id="aiRemoteBox" class="ai-remote">
+    <summary>Kaggle GPU ulanishi <span id="aiModeTag" class="mini-pill unknown">LOKAL</span></summary>
+    <p class="ai-help">Kaggle notebookdagi <b>AI SERVER MANZILI</b> ni bu yerga qo‘ying. Bo‘sh qoldirsangiz, laptopdagi model ishlatiladi.</p>
+    <input id="aiRemoteUrl" type="url" maxlength="300" placeholder="https://....trycloudflare.com" autocomplete="off" />
+    <div class="ai-actions"><button id="aiRemoteSave" class="button primary" type="button">Ulash</button><button id="aiRemoteClear" class="button quiet" type="button">Uzish</button></div>
+  </details>
+  <p class="ai-warning">Tibbiy tasdiqlanmagan. Faqat ko‘rib chiqish uchun ehtimoliy sabablarni ko‘rsatadi; tashxis yoki davolash buyrug‘i bermaydi.</p>
+  <label class="ai-label" for="aiRecords">Ekipaj qaydlari <small>(har bir qator — bitta qayd, 12 tagacha)</small></label>
+  <textarea id="aiRecords" rows="7" maxlength="6500" placeholder="Masalan:&#10;A02 bosh aylanishini qayd etdi.&#10;LAB modulida ventilyatsiya o‘chgan paytda shikoyatlar boshlandi."></textarea>
+  <div class="ai-actions">
+    <button id="aiDemo" class="button quiet" type="button">Namuna</button>
+    <button id="aiClear" class="button quiet" type="button">Tozalash</button>
+    <button id="aiRun" class="button primary" type="button">Tahlil qilish</button>
+  </div>
+  <div id="aiProgress" class="ai-progress" hidden><div class="ai-bar"><span id="aiBar"></span></div><small id="aiStage">—</small></div>
+  <div id="aiResult" class="ai-result" aria-live="polite"><div class="empty">Qaydlarni kiriting va “Tahlil qilish”ni bosing.</div></div>
+</aside>
+<button id="aiReopen" class="ai-reopen" type="button" aria-controls="aiPanel" hidden>✦ AstroAI</button>
+
+<div id="protocolModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="protocolTitle">
+  <div class="modal-box bezel"><div class="row between"><div><div class="eyebrow">OFFLINE REVIEW CHECKLIST · DEMO</div><h2 id="protocolTitle">Tekshirish yo‘riqnomasi</h2></div><button id="closeModal" class="close" aria-label="Yopish">✕</button></div>
+    <p class="banner" data-tone="delayed">Tibbiyot mutaxassislari tomonidan parvoz uchun tasdiqlanmagan. Haqiqiy favqulodda vaziyatda ekipajning tasdiqlangan protseduralari qo‘llanadi.</p>
+    <ol id="protocolSteps" class="todo-list"></ol><button id="closeModalBottom" class="btn wide">Yopish</button>
+  </div>
+</div>
+<div id="toast" class="toast hidden" role="status"></div>
+</body>
+</html>
